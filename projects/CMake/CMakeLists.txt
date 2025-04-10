@@ -17,6 +17,8 @@ set(RFXGEN_SRC ${RFXGEN_ROOT}/src)
 # Application
 if(${BUILD_RFXGEN})
     find_package(Raylib)
+    
+    # add_compile_definitions(RAYGUI_STANDALONE)
 
     if (APPLE)
         add_executable(${PROJECT_NAME}

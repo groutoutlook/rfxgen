@@ -3126,6 +3126,36 @@ int GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, in
     return result;
 }
 
+
+#if defined(WIN32)
+static float TextToFloat_(const char* text) {
+    float value = 0.0f;
+    float sign = 1.0f;
+
+    if ((text[0] == '+') || (text[0] == '-'))
+    {
+        if (text[0] == '-') sign = -1.0f;
+        text++;
+    }
+
+    int i = 0;
+    for (; ((text[i] >= '0') && (text[i] <= '9')); i++) value = value * 10.0f + (float)(text[i] - '0');
+
+    if (text[i++] != '.') value *= sign;
+    else
+    {
+        float divisor = 10.0f;
+        for (; ((text[i] >= '0') && (text[i] <= '9')); i++)
+        {
+            value += ((float)(text[i] - '0')) / divisor;
+            divisor = divisor * 10.0f;
+        }
+    }
+
+    return value;
+}
+#endif
+
 // Floating point Value Box control, updates input val_str with numbers
 // NOTE: Requires static variables: frameCounter
 int GuiValueBoxFloat(Rectangle bounds, const char *text, char *textValue, float *value, bool editMode)
@@ -3193,8 +3223,11 @@ int GuiValueBoxFloat(Rectangle bounds, const char *text, char *textValue, float 
                     valueHasChanged = true;
                 }
             }
-
+#ifdef WIN32
+            if (valueHasChanged) *value = TextToFloat_(textValue);
+#else
             if (valueHasChanged) *value = TextToFloat(textValue);
+#endif
 
             if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) || (!CheckCollisionPointRec(mousePoint, bounds) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))) result = 1;
         }
